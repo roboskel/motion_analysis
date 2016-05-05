@@ -1,0 +1,31 @@
+The file which contains the algorithm is process.cpp
+-------------------------------------------------------------------------------------
+
+The algorithm itself is option 5 in process_function()
+
+It does two things:
+
+Alorithm 1 : Used to detect out-of-bed event
+
+Detects activity and considers this to be the foreground.
+To detect activity it breaks teh image is 5X5 blocks.
+Each block with enough chnaged pixels is considered an active block.
+The bounding rectangle of all active blocks is the active region.
+The top line of the active region is assumed to be the perosns height.
+The centre of activity is also detected.
+
+Algorithm 2 : Used to detect if the medication cup was moved
+
+-------------------------------------------------------------------------------------
+
+#Running the node
+In order to run the code you need to run the following command:
+roslaunch motion_analysis motion_analysis.launch
+
+#Parameters
+Edit the parameters.yaml file in the config folder of the package.
+
+#Testing
+If you want to test the code, you can use the .bag file provided in the test folder of the package.
+This file includes an image topic that the node should subscribe to. Play the .bag file by running:
+rosbag play /path/to/package/src/test/test_motion_analysis.bag

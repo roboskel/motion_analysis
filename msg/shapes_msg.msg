@@ -1,0 +1,3 @@
+BoundingBox boundingBox
+Point2D centerOfActivity
+sensor_msgs/Image image

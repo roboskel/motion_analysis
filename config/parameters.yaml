@@ -1,0 +1,20 @@
+image_topic: '/usb_cam/image_raw'
+
+motion_analysis_shapes_topic: '/motion_analysis/shapes_image'
+
+motion_analysis_human_topic: '/motion_analysis/event/human_transfer'
+
+motion_analysis_object_topic: '/motion_analysis/event/object_tampered'
+
+# If true, then two extra topics are used to publish messages
+# that will be mostly useful for human consumption
+visualize: true
+
+# This message visualizes the motion detection process
+image_motion_detection_results_topic: '/motion_analysis/motion_analysis_viz'
+
+# This message has the image blacked out, except for the bounding box
+# of detected motion
+image_bounding_box_topic: '/motion_analysis/bounding_box_viz'
+
+
