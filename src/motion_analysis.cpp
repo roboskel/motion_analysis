@@ -10,12 +10,13 @@
 #include "std_msgs/String.h"
 #include "std_msgs/Int32.h"
 #include "motion_analysis/shapes_msg.h"
+#include "motion_analysis/StringWithHeader.h"
 
 
 cv_bridge::CvImagePtr image = 0;  
 unsigned int IMAGE_RECEIVED = 0;
 sensor_msgs::ImageConstPtr ros_image;
-std_msgs::String string_msg;
+motion_analysis::StringWithHeader string_msg;
 
 void imageCallback(const sensor_msgs::Image::ConstPtr& str_img){
   if(IMAGE_RECEIVED == 0){
@@ -53,6 +54,7 @@ int main(int argc, char** argv) {
   std::string motion_analysis_shapes_topic = "";
   std::string motion_analysis_human_topic = "";
   std::string motion_analysis_object_topic = "";
+  std::string motion_analysis_mode_topic = "";
   bool visualize = false;
 
   n.param("motion_analysis/image_topic", image_topic, std::string("/usb_cam/image_raw"));
@@ -61,14 +63,15 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/motion_analysis_shapes_topic", motion_analysis_shapes_topic, std::string("/motion_analysis/shapes_image"));
   n.param("motion_analysis/motion_analysis_human_topic", motion_analysis_human_topic, std::string("/motion_analysis/event/human_transfer"));
   n.param("motion_analysis/motion_analysis_object_topic", motion_analysis_object_topic, std::string("/motion_analysis/event/object_tampered"));
+  n.param("motion_analysis/motion_analysis_mode_topic", motion_analysis_mode_topic, std::string("/motion_analysis/object_state"));
   n.param("motion_analysis/visualize", visualize, false);
 
   ros::Subscriber img_in, object_state_in;
   img_in = n.subscribe<sensor_msgs::Image>(image_topic, 5, imageCallback);
-  object_state_in = n.subscribe<std_msgs::Int32>("object_state", 5, objectStateCallback);
+  object_state_in = n.subscribe<std_msgs::Int32>(motion_analysis_mode_topic, 5, objectStateCallback);
 
-  ros::Publisher string_publisher_person = n.advertise<std_msgs::String>(motion_analysis_human_topic, 1);
-  ros::Publisher string_publisher_object = n.advertise<std_msgs::String>(motion_analysis_object_topic, 1);
+  ros::Publisher string_publisher_person = n.advertise<motion_analysis::StringWithHeader>(motion_analysis_human_topic, 1);
+  ros::Publisher string_publisher_object = n.advertise<motion_analysis::StringWithHeader>(motion_analysis_object_topic, 1);
   ros::Publisher shapes_image_publisher = n.advertise<motion_analysis::shapes_msg>(motion_analysis_shapes_topic, 1);
   ros::Publisher image_publisher_bb = n.advertise<sensor_msgs::Image>(bounding_box_topic, 100);
   ros::Publisher image_publisher_mdr = n.advertise<sensor_msgs::Image>(motion_detection_results_topic, 100);
@@ -120,13 +123,19 @@ int main(int argc, char** argv) {
       
       if(placed == MODE_HUMAN_MOVEMENT){
         if(bed_answer.compare("") != 0){
-          string_msg.data = bed_answer;
+          std_msgs::Header header;
+          header.stamp = ros::Time::now();
+          string_msg.header = header;
+          string_msg.event = bed_answer;
           string_publisher_person.publish(string_msg);
         }
       }
       else{
         if(obj_answer.compare("") != 0){
-          string_msg.data = bed_answer;
+          std_msgs::Header header;
+          header.stamp = ros::Time::now();
+          string_msg.header = header;
+          string_msg.event = obj_answer;
           string_publisher_object.publish(string_msg);
         }
       }

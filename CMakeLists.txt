@@ -19,6 +19,7 @@ add_message_files(
   shapes_msg.msg
   Point2D.msg
   BoundingBox.msg
+  StringWithHeader.msg
 )
 
 find_package(OpenCV)

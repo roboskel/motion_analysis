@@ -6,6 +6,8 @@ motion_analysis_human_topic: '/motion_analysis/event/human_transfer'
 
 motion_analysis_object_topic: '/motion_analysis/event/object_tampered'
 
+motion_analysis_mode_topic: '/motion_analysis/object_state'
+
 # If true, then two extra topics are used to publish messages
 # that will be mostly useful for human consumption
 visualize: true
