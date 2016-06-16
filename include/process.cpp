@@ -355,7 +355,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
 }
 
 
-void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsigned int showanno, std::string &bed_ans, std::string &cup_ans, unsigned char *unedited, int *shapesxy) {
+void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsigned int showanno, int &bed_ans, int &cup_ans, unsigned char *unedited, int *shapesxy) {
     
     unsigned int height, isup, oob;
 
@@ -365,8 +365,6 @@ void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsi
 
     height = top;
 
-    std::string ans = "";
-
     #ifdef ALGO_1
         if (height>STANDING_PERSON_HEIGHT) isup=1; else isup=0;
         if ((centerx<OUTOFBED_LEFT)||(centerx>OUTOFBED_RIGHT)) oob=1; else oob=0;
@@ -374,23 +372,23 @@ void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsi
         if ((isup==1)&&(gotup==0)&&(index>9))  { 
             gotup=1; 
             //printf("Standing [after %05d Frames]\n",index); 
-            bed_ans = "Standing [after "+std::to_string(index)+" Frames]";
+            bed_ans = 1;
         }
         
         if ((oob==1)&&(isup==1)){
-            bed_ans = "Walking";
+            bed_ans = 2;
             //printf("Walking !!\n");
         } 
         
         if ((oob==1)&&(isup==0)){
-            bed_ans = "Out of Bed but not Standing up!";
+            bed_ans = 0;
             //printf("* * * Warning : Out of Bed but not Standing up!  * * * \n");
         }
     #endif
     
     #ifdef ALGO_2
         if (cupmoved==1){
-            cup_ans = "The cup was moved";
+            cup_ans = 1;
             //printf("The cup was moved!\n");
         }
     #endif

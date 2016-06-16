@@ -1,2 +1,2 @@
 Header header
-string event
+int32 event
