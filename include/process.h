@@ -22,7 +22,7 @@
 #define ALGO_1 //bed detection
 #define ALGO_2 //cup detection
 #define SENSITIVITY 30
-#define STANDING_PERSON_HEIGHT 300
+#define STANDING_PERSON_HEIGHT 150
 #define OUTOFBED_LEFT 150
 #define OUTOFBED_RIGHT 450
 
