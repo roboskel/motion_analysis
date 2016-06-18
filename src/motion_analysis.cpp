@@ -27,6 +27,9 @@ void imageCallback(const sensor_msgs::Image::ConstPtr& str_img){
 
 void objectStateCallback(const std_msgs::Int32 obj_state){
   placed = obj_state.data;
+  if(placed == 2){
+    ROS_INFO("Waiting for object to move");
+  }
 }
 
 cv_bridge::CvImagePtr cvImageFromROS(){

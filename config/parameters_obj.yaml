@@ -1,6 +1,12 @@
 image_topic: '/xtion_pro_cam/rgb/image_raw'
 
-mode: 2 #human_detection=0, testing=1, object_detection=2
+#object detection MUST start on testing mode, in order for the small
+#square to initialize. then a "2" should be published on the
+# motion_analysis_mode_topic
+#e.g.
+#rostopic pub /motion_analysis/object_state std_msgs/Int32 2
+
+mode: 1 #human_detection=0, testing=1, object_detection=2
 
 motion_analysis_shapes_topic: '/motion_analysis/shapes_image'
 
