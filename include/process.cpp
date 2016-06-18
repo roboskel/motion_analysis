@@ -320,7 +320,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 
                     for (x=2;x<638;x++) {
                         rgb_a[(x*480+STANDING_PERSON_HEIGHT)*3+GREENV] = 255;
-                        rgb_a[(x*480+top                   )*3+BLUEV] = 255; // uncomment this to show hight in red
+                        //rgb_a[(x*480+top                   )*3+BLUEV] = 255; // uncomment this to show hight in red
                         if (top<STANDING_PERSON_HEIGHT) rgb_a[(x*480+top)*3+REDV] = 255;
                     }
                     for (y=2;y<438;y++) {
