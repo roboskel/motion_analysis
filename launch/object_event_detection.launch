@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<launch>
+	<master auto="start"/>
+
+	<node pkg="motion_analysis" type="motion_analysis" respawn="false" name="motion_analysis" output="screen">
+		<rosparam file="$(find motion_analysis)/config/parameters_obj.yaml" command="load" />
+	</node>
+</launch>

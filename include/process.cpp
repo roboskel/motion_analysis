@@ -1,5 +1,53 @@
 #include "process.h"
 
+/* traffic_light(rgb_a,state)
+ *
+ * shows a red,blue,green traffic light bottom right
+ *
+ * rgb_a     = the image frame  ( array[640*480*3] )
+ * state     = 0: all off, 1: red, 2: blue, 4:green. Binary combined
+ *
+ */
+
+int traffic_light(unsigned char *rgb_a, unsigned int state){
+
+    unsigned int x,y,cyp,cxp;
+    int tmpi;
+
+    if (state & 0x01) {
+        cxp = 610;
+        cyp = 360;
+        for (x=cxp-30;x<cxp+30;x++) {
+            for (y=cyp-30;y<cyp+30;y++) {
+                tmpi = 255 - ((x-cxp)*(x-cxp)+(y-cyp)*(y-cyp))/3;
+                if (tmpi>0) rgb_a[(x*480+y)*3+BLUEV ] = tmpi;
+            }
+        }
+    }
+    if (state & 0x02) {
+        cxp = 610;
+        cyp = 400;
+        for (x=cxp-30;x<cxp+30;x++) {
+            for (y=cyp-30;y<cyp+30;y++) {
+                tmpi = 255 - ((x-cxp)*(x-cxp)+(y-cyp)*(y-cyp))/3;
+                if (tmpi>0) rgb_a[(x*480+y)*3+REDV ] = tmpi;
+            }
+        }
+    }
+    if (state & 0x04) {
+        cxp = 610;
+        cyp = 440;
+        for (x=cxp-30;x<cxp+30;x++) {
+            for (y=cyp-30;y<cyp+30;y++) {
+                tmpi = 255 - ((x-cxp)*(x-cxp)+(y-cyp)*(y-cyp))/3;
+                if (tmpi>0) rgb_a[(x*480+y)*3+GREENV] = tmpi;
+            }
+        }
+    }
+}
+
+
+
 /* process_function(grb_a, rgb_b,command, showanno)
  *
  * processes two frames
@@ -235,7 +283,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 
                 if ((x2>x1)&&(y2>y1)) //valid rectangle
                 {
-                    x1p=x1; y1p=y1; x2p=x2; y2p=y2;  top = y2p;
+                    x1p=x1; y1p=y1; x2p=x2; y2p=y2;  top = y1p;
                     if (nn>0) { cxp=cx/nn; cyp=cy/nn; centerx=cxp; centery=cyp;}
                     
                 }
@@ -272,7 +320,8 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 
                     for (x=2;x<638;x++) {
                         rgb_a[(x*480+STANDING_PERSON_HEIGHT)*3+GREENV] = 255;
-                        // rgb_a[(x*480+top                   )*3+BLUEV] = 255; // uncomment this to show hight in red
+                        //rgb_a[(x*480+top                   )*3+BLUEV] = 255; // uncomment this to show hight in red
+                        if (top<STANDING_PERSON_HEIGHT) rgb_a[(x*480+top)*3+REDV] = 255;
                     }
                     for (y=2;y<438;y++) {
                         rgb_a[(OUTOFBED_LEFT*480 +y)*3+GREENV] = 255;
@@ -355,42 +404,44 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
 }
 
 
-void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsigned int showanno, std::string &bed_ans, std::string &cup_ans, unsigned char *unedited, int *shapesxy) {
+void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsigned int showanno, int &bed_ans, int &cup_ans, unsigned char *unedited, int *shapesxy) {
     
     unsigned int height, isup, oob;
 
-    if (index<10) gotup=0;
+    //if (index<10) gotup=0;
     
     process_function (rgb_a, rgb_b,COMMAND, showanno, unedited, shapesxy);
 
     height = top;
 
-    std::string ans = "";
-
     #ifdef ALGO_1
-        if (height>STANDING_PERSON_HEIGHT) isup=1; else isup=0;
+        if (height<STANDING_PERSON_HEIGHT) isup=1; else isup=0;
         if ((centerx<OUTOFBED_LEFT)||(centerx>OUTOFBED_RIGHT)) oob=1; else oob=0;
 
-        if ((isup==1)&&(gotup==0)&&(index>9))  { 
-            gotup=1; 
+        //if ((isup==1)&&(gotup==0)&&(index>9))  { 
+        //    gotup=1; 
+        if (isup==1)  { 
             //printf("Standing [after %05d Frames]\n",index); 
-            bed_ans = "Standing [after "+std::to_string(index)+" Frames]";
+            bed_ans = 1;
+            traffic_light(rgb_a, 2);
         }
         
         if ((oob==1)&&(isup==1)){
-            bed_ans = "Walking";
+            bed_ans = 2;
             //printf("Walking !!\n");
+            traffic_light(rgb_a, 1);
         } 
         
         if ((oob==1)&&(isup==0)){
-            bed_ans = "Out of Bed but not Standing up!";
+            bed_ans = 0;
+            traffic_light(rgb_a, 4);
             //printf("* * * Warning : Out of Bed but not Standing up!  * * * \n");
         }
     #endif
     
     #ifdef ALGO_2
         if (cupmoved==1){
-            cup_ans = "The cup was moved";
+            cup_ans = 1;
             //printf("The cup was moved!\n");
         }
     #endif

@@ -22,7 +22,7 @@
 #define ALGO_1 //bed detection
 #define ALGO_2 //cup detection
 #define SENSITIVITY 30
-#define STANDING_PERSON_HEIGHT 300
+#define STANDING_PERSON_HEIGHT 150
 #define OUTOFBED_LEFT 150
 #define OUTOFBED_RIGHT 450
 
@@ -62,6 +62,6 @@ unsigned int top, centerx, centery;
 unsigned int gotup, cupmoved;
 
 int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char command, unsigned int showanno, unsigned char *unedited, int *shapesxy);
-void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsigned int showanno, std::string &bed_ans, std::string &cup_ans, unsigned char *unedited, int *shapesxy);
+void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsigned int showanno, int &bed_ans, int &cup_ans, unsigned char *unedited, int *shapesxy);
 
 #endif
