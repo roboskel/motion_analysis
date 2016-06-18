@@ -65,6 +65,7 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/motion_analysis_object_topic", motion_analysis_object_topic, std::string("/motion_analysis/event/object_tampered"));
   n.param("motion_analysis/motion_analysis_mode_topic", motion_analysis_mode_topic, std::string("/motion_analysis/object_state"));
   n.param("motion_analysis/visualize", visualize, false);
+  n.param("motion_analysis/mode", placed, 0);
 
   ros::Subscriber img_in, object_state_in;
   img_in = n.subscribe<sensor_msgs::Image>(image_topic, 5, imageCallback);
@@ -130,7 +131,7 @@ int main(int argc, char** argv) {
           string_publisher_person.publish(string_msg);
         }
       }
-      else{
+      else if(placed == MODE_DETECT_OBJECT_MOVEMENT){
         if(obj_answer != -1){
           std_msgs::Header header;
           header.stamp = ros::Time::now();

@@ -1,6 +1,6 @@
 image_topic: '/xtion_pro_cam/rgb/image_raw'
 
-mode: 0 #Human=0, object=1
+mode: 2 #human_detection=0, testing=1, object_detection=2
 
 motion_analysis_shapes_topic: '/motion_analysis/shapes_image'
 
