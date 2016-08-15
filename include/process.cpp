@@ -218,8 +218,8 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 s=5; // size of each block
                 
                 // find diff in squares of size s, and find top,bot,right,left
-                for (yy=s;yy<480-s;yy+=2*s) {
-                  for (xx=s;xx<640-s;xx+=2*s) {
+                for (yy=s;yy<=480-s;yy+=2*s) {
+                  for (xx=s;xx<=640-s;xx+=2*s) {
                                     
                     n=0;
                     
