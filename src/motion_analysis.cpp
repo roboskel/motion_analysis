@@ -26,9 +26,13 @@ void imageCallback(const sensor_msgs::Image::ConstPtr& str_img){
 }
 
 void objectStateCallback(const std_msgs::Int32 obj_state){
-  placed = obj_state.data;
-  if(placed == 2){
-    ROS_INFO("Waiting for object to move");
+ROS_INFO("TESTTTTTTT");
+  if(placed != MODE_HUMAN_MOVEMENT){
+	ROS_ERROR("TEEEEEEEEEEEST");
+  	placed = obj_state.data;
+  	if(placed == 2){
+    		ROS_INFO("Waiting for object to move");
+  	}
   }
 }
 
