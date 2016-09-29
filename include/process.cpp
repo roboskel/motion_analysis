@@ -197,7 +197,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 
                                 
                 unsigned int xx,yy;   
-                unsigned int s;
+                unsigned int s,ss;
                 int tmpi;
                 
                 x1=638; x2=1;
@@ -215,16 +215,21 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 }
 
                 #ifdef ALGO_1
-                s=5; // size of each block
+		
+		// Define ss to any value >0 and <(480/4). 
+		// Reasonable results expected only for values in between 2 and 10.
+                ss= 4;           // +/- from center of each block
+		
+		s = ss + ss + 1; // size of each block
                 
                 // find diff in squares of size s, and find top,bot,right,left
-                for (yy=s;yy<480-s;yy+=2*s) {
-                  for (xx=s;xx<640-s;xx+=2*s) {
+                for (yy=s;yy<480-s;yy+=s) {
+                  for (xx=s;xx<640-s;xx+=s) {
                                     
                     n=0;
                     
-                    for (x=xx-s;x<xx+s;x++) {
-                    for (y=yy-s;y<yy+s;y++) {
+                    for (x=xx-ss;x<xx+s+1s;x++) {
+                    for (y=yy-ss;y<yy+ss+1;y++) {
 
                 
                     if ((abs(rgb_a[(x*480+y)*3+REDV  ] - rgb_b[(x*480+y)*3+REDV  ] ))>40) { 
@@ -251,7 +256,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                     }
                     }
                                     
-                    n = n / (s*s*4);
+                    n = n / (s*s);
                                     
                     if (n>SENSITIVITY) {
                         if (x<x1) x1=x;
@@ -264,8 +269,8 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                         nn = nn + 1;
                         
                         if (showanno>0) {
-                            for (x=xx-s;x<xx+s;x++) {
-                            for (y=yy-s;y<yy+s;y++) {
+                            for (x=xx-ss;x<xx+ss;x++) {
+                            for (y=yy-ss;y<yy+ss;y++) {
                                 if (rgb_a[(x*480+y)*3+BLUEV ]<128)
                                     rgb_a[(x*480+y)*3+BLUEV ] = rgb_a[(x*480+y)*3+BLUEV ] + 128;
                                 else
