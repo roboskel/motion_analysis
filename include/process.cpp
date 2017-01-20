@@ -228,7 +228,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                                     
                     n=0;
                     
-                    for (x=xx-ss;x<xx+s+1s;x++) {
+                    for (x=xx-ss;x<xx+s+1;x++) {
                     for (y=yy-ss;y<yy+ss+1;y++) {
 
                 
@@ -349,7 +349,6 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 gotup = 0;
                 top = 0;
                 #endif
-                
                 #ifdef ALGO_2
                 // Process the cup region
                 int cupi=0;
@@ -386,7 +385,6 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                         rgb_a[((CUPX-CUPR)*480 + y)*3+GREENV] = 255;
                     }
                     
-                    
                 }
                 
                 #else
@@ -413,8 +411,10 @@ void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsi
     
     unsigned int height, isup, oob;
 
-    //if (index<10) gotup=0;
-    
+    char str[1];
+
+    cup = new int[CUPR*CUPR*4];    
+
     process_function (rgb_a, rgb_b,COMMAND, showanno, unedited, shapesxy);
 
     height = top;

@@ -1,4 +1,4 @@
-image_topic: '/xtion_pro_cam/rgb/image_raw'
+image_topic: '/camera/rgb/image_raw'
 
 #object detection MUST start on testing mode, in order for the small
 #square to initialize. then a "2" should be published on the
@@ -27,4 +27,4 @@ image_motion_detection_results_topic: '/motion_analysis/motion_analysis_viz'
 # of detected motion
 image_bounding_box_topic: '/motion_analysis/bounding_box_viz'
 
-
+configuration_mode: false
