@@ -143,6 +143,18 @@ void configurationCallback(std_msgs::String str){
 	file.close();
 	ROS_WARN("Configuration saved successfully!");
       }
+      else if(str.data.compare("reset")==0){
+        STANDING_PERSON_HEIGHT = 100;
+        OUTOFBED_LEFT = 240;
+        OUTOFBED_RIGHT = 460;
+        CUPX = 320;
+        CUPY = 240;
+        CUPR = 40;
+        SENSITIVITY = 350;
+        CUPTHRESHOLD = 80;
+        CUPTHRSCOUNT = 30;
+        ROS_WARN("Configuration reset!");
+      }
       else{
         ROS_WARN("I got a wrong command!");
       }
@@ -204,13 +216,13 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/visualize", visualize, false);
   n.param("motion_analysis/mode", placed, 0);
 
-  n.param("motion_analysis/STANDING_PERSON_HEIGHT", STANDING_PERSON_HEIGHT, 0);
-  n.param("motion_analysis/OUTOFBED_LEFT", OUTOFBED_LEFT, 0);
-  n.param("motion_analysis/OUTOFBED_RIGHT", OUTOFBED_RIGHT, 0);
-  n.param("motion_analysis/CUPX", CUPX, 100);
-  n.param("motion_analysis/CUPY", CUPY, 100);
+  n.param("motion_analysis/STANDING_PERSON_HEIGHT", STANDING_PERSON_HEIGHT, 100);
+  n.param("motion_analysis/OUTOFBED_LEFT", OUTOFBED_LEFT, 240);
+  n.param("motion_analysis/OUTOFBED_RIGHT", OUTOFBED_RIGHT, 460);
+  n.param("motion_analysis/CUPX", CUPX, 320);
+  n.param("motion_analysis/CUPY", CUPY, 240);
   n.param("motion_analysis/CUPR", CUPR, 40);
-  n.param("motion_analysis/SENSITIVITY", SENSITIVITY, 30);
+  n.param("motion_analysis/SENSITIVITY", SENSITIVITY, 350);
   n.param("motion_analysis/CUPTHRESHOLD", CUPTHRESHOLD, 80);
   n.param("motion_analysis/CUPTHRSCOUNT", CUPTHRSCOUNT, 30);
   n.param("motion_analysis/configuration_mode", configuration_mode, false);

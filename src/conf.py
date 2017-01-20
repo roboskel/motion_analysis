@@ -23,6 +23,7 @@ def start():
 		print " 'ct ##' to set CUPTHRESHOLD to ##"
 		print " 'cc ##' to set CUPTHRSCOUNT to ##"
 		print "'save' to save the current configuration"
+		print "'reset' to overwrite the current configuration with the default one. (Don't forget to save!)"
 
 		com = raw_input()
 		publisher.publish(str(com))
