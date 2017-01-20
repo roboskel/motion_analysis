@@ -1,6 +1,12 @@
 image_topic: '/camera/rgb/image_raw'
 
-mode: 0 #Human=0, object=1
+#object detection MUST start on testing mode, in order for the small
+#square to initialize. then a "2" should be published on the
+# motion_analysis_mode_topic
+#e.g.
+#rostopic pub /motion_analysis/object_state std_msgs/Int32 2
+
+mode: 1 #human_detection=0, testing=1, object_detection=2
 
 motion_analysis_shapes_topic: '/motion_analysis/shapes_image'
 
@@ -21,4 +27,6 @@ image_motion_detection_results_topic: '/motion_analysis/motion_analysis_viz'
 # of detected motion
 image_bounding_box_topic: '/motion_analysis/bounding_box_viz'
 
-configuration_mode: false
+#Activate configuration mode
+configuration_mode: true
+configuration_keypress_topic: 'motion_analysis/configuration/keypress'

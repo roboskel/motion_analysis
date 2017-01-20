@@ -3,8 +3,7 @@
 	<master auto="start"/>
 
 	<node pkg="motion_analysis" type="motion_analysis" respawn="false" name="motion_analysis" output="screen">
-		<rosparam file="$(find motion_analysis)/config/parameters.yaml" command="load" />
+		<rosparam file="$(find motion_analysis)/config/parameters_conf.yaml" command="load" />
 		<rosparam file="$(find motion_analysis)/config/conf.yaml" command="load" />
-
 	</node>
 </launch>
