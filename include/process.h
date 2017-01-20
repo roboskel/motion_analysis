@@ -16,19 +16,19 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string>
+#include <string.h>
 
 #define COMMAND 5
 #define ALGO_1 //bed detection
 #define ALGO_2 //cup detection
 #define SENSITIVITY 30
-#define STANDING_PERSON_HEIGHT 150
-#define OUTOFBED_LEFT 150
-#define OUTOFBED_RIGHT 450
+//#define STANDING_PERSON_HEIGHT 150
+//#define OUTOFBED_LEFT 150
+//#define OUTOFBED_RIGHT 450
 
-#define CUPX 500
-#define CUPY 200
-#define CUPR 40
+//#define CUPX 500
+//#define CUPY 200
+//#define CUPR 40
 #define CUPTHRESHOLD 80
 #define CUPTHRSCOUNT 30
 
@@ -48,8 +48,21 @@
  *
  */
  
-unsigned int cup[CUPR*CUPR*4];
+//unsigned int cup[CUPR*CUPR*4];
+int *cup;
 unsigned char tempframe[640*480*3];
+unsigned int STANDING_PERSON_HEIGHT = 0;
+unsigned int OUTOFBED_LEFT = 0;
+unsigned int OUTOFBED_RIGHT = 0;
+
+unsigned int CUPX = 0;
+unsigned int CUPY = 0;
+unsigned int CUPR = 0;
+
+unsigned int BOUNDARIES_CONFIG = 0;
+unsigned int CONFIGURATION_DONE = 0;
+unsigned int FIRST_ROUND = 1;
+
 
 
 

@@ -197,7 +197,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 
                                 
                 unsigned int xx,yy;   
-                unsigned int s,ss;
+                unsigned int s;
                 int tmpi;
                 
                 x1=638; x2=1;
@@ -215,21 +215,16 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 }
 
                 #ifdef ALGO_1
-		
-		// Define ss to any value >0 and <(480/4). 
-		// Reasonable results expected only for values in between 2 and 10.
-                ss= 4;           // +/- from center of each block
-		
-		s = ss + ss + 1; // size of each block
+                s=5; // size of each block
                 
                 // find diff in squares of size s, and find top,bot,right,left
-                for (yy=s;yy<480-s;yy+=s) {
-                  for (xx=s;xx<640-s;xx+=s) {
+                for (yy=s;yy<480-s;yy+=2*s) {
+                  for (xx=s;xx<640-s;xx+=2*s) {
                                     
                     n=0;
                     
-                    for (x=xx-ss;x<xx+s+1s;x++) {
-                    for (y=yy-ss;y<yy+ss+1;y++) {
+                    for (x=xx-s;x<xx+s;x++) {
+                    for (y=yy-s;y<yy+s;y++) {
 
                 
                     if ((abs(rgb_a[(x*480+y)*3+REDV  ] - rgb_b[(x*480+y)*3+REDV  ] ))>40) { 
@@ -256,7 +251,7 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                     }
                     }
                                     
-                    n = n / (s*s);
+                    n = n / (s*s*4);
                                     
                     if (n>SENSITIVITY) {
                         if (x<x1) x1=x;
@@ -269,8 +264,8 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                         nn = nn + 1;
                         
                         if (showanno>0) {
-                            for (x=xx-ss;x<xx+ss;x++) {
-                            for (y=yy-ss;y<yy+ss;y++) {
+                            for (x=xx-s;x<xx+s;x++) {
+                            for (y=yy-s;y<yy+s;y++) {
                                 if (rgb_a[(x*480+y)*3+BLUEV ]<128)
                                     rgb_a[(x*480+y)*3+BLUEV ] = rgb_a[(x*480+y)*3+BLUEV ] + 128;
                                 else
@@ -413,8 +408,127 @@ void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsi
     
     unsigned int height, isup, oob;
 
-    //if (index<10) gotup=0;
+    char str[1];
     
+    if(BOUNDARIES_CONFIG == 0)
+    {
+      char strin[999];
+      FILE * file;
+      file = fopen( "/home/ros/catkin_ws/src/motion_analysis/include/test.txt" , "r");
+      BOUNDARIES_CONFIG = 1;
+      if (file) {
+	while (fscanf(file, "%s", strin)!=EOF)
+	{
+	  if(strcmp("STANDING_PERSON_HEIGHT",strin)==0)
+	  {
+	    fscanf(file, "%s", strin);
+	    STANDING_PERSON_HEIGHT = atoi(strin);	    
+	  }
+	  if(strcmp("OUTOFBED_LEFT",strin)==0)
+	  {
+	    fscanf(file, "%s", strin);
+	    OUTOFBED_LEFT = atoi(strin);
+	  }
+	  if(strcmp("OUTOFBED_RIGHT",strin)==0)
+	  {
+	    fscanf(file, "%s", strin);
+	    OUTOFBED_RIGHT = atoi(strin);	   
+	  }
+	  if(strcmp("CUPX",strin)==0)
+	  {
+	    fscanf(file, "%s", strin);
+	    CUPX = atoi(strin);	   
+	  }
+	  if(strcmp("CUPY",strin)==0)
+	  {
+	    fscanf(file, "%s", strin);
+	    CUPY = atoi(strin);	   
+	  }
+	  if(strcmp("CUPR",strin)==0)
+	  {
+	    fscanf(file, "%s", strin);
+	    CUPR = atoi(strin);	   
+	  }
+	}
+	cup = new int[CUPR*CUPR*4];
+	fclose(file);
+      }
+    }
+    
+      if(CONFIGURATION_DONE == 0 && FIRST_ROUND == 0){
+      printf( "Enter a value (h for help) :");
+      gets( str );
+
+      printf( "\nYou entered: %d ", str[0]);
+      puts( str );
+    
+      if(str[0] == 113){ //q
+	if(STANDING_PERSON_HEIGHT - 20 > 0)
+	  STANDING_PERSON_HEIGHT = STANDING_PERSON_HEIGHT - 20;
+      }else if(str[0] == 97){ //a
+	if(STANDING_PERSON_HEIGHT + 20 <= 480)
+	  STANDING_PERSON_HEIGHT = STANDING_PERSON_HEIGHT + 20;
+      }else if(str[0] == 119){ //w
+	if(OUTOFBED_LEFT - 20 >0)
+	  OUTOFBED_LEFT = OUTOFBED_LEFT - 20;
+      }else if(str[0] == 101){ //e
+	if(OUTOFBED_LEFT + 20 <= 640)
+	  OUTOFBED_LEFT = OUTOFBED_LEFT + 20;
+      }else if(str[0] == 111){ //o
+	if(OUTOFBED_RIGHT - 20 > 0)
+	  OUTOFBED_RIGHT = OUTOFBED_RIGHT - 20;
+      }else if(str[0] == 112){ //p
+	if(OUTOFBED_RIGHT + 20 <= 640)
+	  OUTOFBED_RIGHT = OUTOFBED_RIGHT + 20;
+      }else if(str[0] == 100){ //d
+	if(CUPY - 20 > 0)
+	  CUPY = CUPY - 20;
+      }else if(str[0] == 99){ //c
+	if(CUPY + 20 <= 480)
+	  CUPY = CUPY + 20;
+      }else if(str[0] == 120){ //x   TO CHECK
+	if(CUPX - 20 > 0)
+	  CUPX = CUPX - 20;
+      }else if(str[0] == 118){ //v
+	if(CUPX + 20 <= 640)
+	  CUPX = CUPX + 20;
+      }else if(str[0] == 103){ //g
+	//if(CUPX + 20 <= 640)
+	CUPR = CUPR + 20;
+      }else if(str[0] == 98){ //b
+	//if(CUPX + 20 <= 640)
+	CUPR = CUPR - 20;
+      }else if(str[0] == 115){ //s
+	FILE *f;
+	f = fopen( "/home/ros/catkin_ws/src/motion_analysis/include/test.txt" , "w");
+	fprintf(f, "STANDING_PERSON_HEIGHT %d\n", STANDING_PERSON_HEIGHT);
+	fprintf(f, "OUTOFBED_LEFT %d\n", OUTOFBED_LEFT);
+	fprintf(f, "OUTOFBED_RIGHT %d\n", OUTOFBED_RIGHT);
+	fprintf(f, "CUPX %d\n", CUPX);
+	fprintf(f, "CUPY %d\n", CUPY);
+	fprintf(f, "CUPR %d\n", CUPR);
+	fclose(f);
+	//exit(0);
+      }else if(str[0] == 27){ //esc
+	CONFIGURATION_DONE = 1;
+	printf( "Exit Configuration Phase \n");
+      }else if(str[0] == 104){ //h
+	printf(" 'q' for STANDING_PERSON_HEIGHT upwards \n");
+	printf(" 'a' for STANDING_PERSON_HEIGHT downwards \n");
+	printf(" 'w' for OUTOFBED_LEFT to the left \n");
+	printf(" 'w' for OUTOFBED_LEFT to the right \n");
+	printf(" 'o' for OUTOFBED_RIGHT to the left \n");
+	printf(" 'p' for OUTOFBED_RIGHT to the right \n");
+	printf(" 'x' for CUPX to the left \n");
+	printf(" 'v' for CUPX to the right \n");
+	printf(" 'd' for CUPY upwards \n");
+	printf(" 'c' for CUPY downwards \n");
+	printf(" 'g' for CUPR increase \n");
+	printf(" 'b' for CUPY decrease \n");
+	printf(" 'esc' for exiting configuration \n");
+      }
+    }
+    FIRST_ROUND = 0;
     process_function (rgb_a, rgb_b,COMMAND, showanno, unedited, shapesxy);
 
     height = top;
