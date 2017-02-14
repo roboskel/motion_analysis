@@ -6,4 +6,9 @@
 		<rosparam file="$(find motion_analysis)/config/parameters_conf.yaml" command="load" />
 		<rosparam file="$(find motion_analysis)/config/conf.yaml" command="load" />
 	</node>
+
+<node pkg="motion_analysis" type="conf.py" respawn="false" name="conf" output="screen">
+                <rosparam file="$(find motion_analysis)/config/parameters_conf.yaml" command="load" />
+        </node>
+
 </launch>
