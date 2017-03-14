@@ -11,31 +11,18 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   cv_bridge
   image_transport
-  message_generation
-)
-
-add_message_files(
-  FILES
-  shapes_msg.msg
-  Point2D.msg
-  BoundingBox.msg
-  AnswerWithHeader.msg
 )
 
 find_package(OpenCV)
 
-generate_messages(
-	DEPENDENCIES
-  sensor_msgs
-	std_msgs
-)
+#find_package(motion_analysis_msgs)
 
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
 catkin_package(
-	INCLUDE_DIRS include
-   	LIBRARIES ${PROJECT_NAME}
-  	CATKIN_DEPENDS roscpp roslib std_msgs
+    INCLUDE_DIRS include
+    LIBRARIES ${PROJECT_NAME}
+    CATKIN_DEPENDS roscpp roslib std_msgs motion_analysis_msgs
 )
 
 include_directories(${catkin_INCLUDE_DIRS} ${BOOST_INCLUDE_DIR} ${Boost_INCLUDE_DIR} src include)

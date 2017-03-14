@@ -9,8 +9,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include "std_msgs/String.h"
 #include "std_msgs/Int32.h"
-#include "motion_analysis/shapes_msg.h"
-#include "motion_analysis/AnswerWithHeader.h"
+#include "motion_analysis_msgs/shapes_msg.h"
+#include "motion_analysis_msgs/AnswerWithHeader.h"
 #include <ros/package.h>
 #include <iostream>
 #include <fstream>
@@ -20,7 +20,7 @@
 cv_bridge::CvImagePtr image = 0;  
 unsigned int IMAGE_RECEIVED = 0;
 sensor_msgs::ImageConstPtr ros_image;
-motion_analysis::AnswerWithHeader string_msg;
+motion_analysis_msgs::AnswerWithHeader string_msg;
 
 void configurationCallback(std_msgs::String str){
       if(str.data.compare("h+")==0){ //q
@@ -236,9 +236,9 @@ int main(int argc, char** argv) {
 	conf_in = n.subscribe<std_msgs::String>(conf_topic, 1, configurationCallback);
   }
 
-  ros::Publisher string_publisher_person = n.advertise<motion_analysis::AnswerWithHeader>(motion_analysis_human_topic, 1);
-  ros::Publisher string_publisher_object = n.advertise<motion_analysis::AnswerWithHeader>(motion_analysis_object_topic, 1);
-  ros::Publisher shapes_image_publisher = n.advertise<motion_analysis::shapes_msg>(motion_analysis_shapes_topic, 1);
+  ros::Publisher string_publisher_person = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_human_topic, 1);
+  ros::Publisher string_publisher_object = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_object_topic, 1);
+  ros::Publisher shapes_image_publisher = n.advertise<motion_analysis_msgs::shapes_msg>(motion_analysis_shapes_topic, 1);
   ros::Publisher image_publisher_bb = n.advertise<sensor_msgs::Image>(bounding_box_topic, 100);
   ros::Publisher image_publisher_mdr = n.advertise<sensor_msgs::Image>(motion_detection_results_topic, 100);
   
@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
   int bed_answer;
   int obj_answer;
 
-  motion_analysis::shapes_msg shapes_image_msg;
+  motion_analysis_msgs::shapes_msg shapes_image_msg;
   int shapesxy[6] = {};
 
 
