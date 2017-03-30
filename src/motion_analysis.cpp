@@ -272,12 +272,12 @@ int main(int argc, char** argv) {
       
       for (y=0;y<rows;y++) {
           for (x=0;x<columns;x++) {
-            RGB[639-x][y][REDV  ] = image_data[step*y+x*3+0];
-            RGB[639-x][y][GREENV] = image_data[step*y+x*3+1];
-            RGB[639-x][y][BLUEV ] = image_data[step*y+x*3+2];
-            RGB_unedited[639-x][y][REDV] = unedited_image_data[step*y+x*3+0];
-            RGB_unedited[639-x][y][GREENV] = unedited_image_data[step*y+x*3+1];
-            RGB_unedited[639-x][y][BLUEV] = unedited_image_data[step*y+x*3+2];
+            RGB[639-x][y][REDV  ] = image_data[step*y+(639-x)*3+0];
+            RGB[639-x][y][GREENV] = image_data[step*y+(639-x)*3+1];
+            RGB[639-x][y][BLUEV ] = image_data[step*y+(639-x)*3+2];
+            RGB_unedited[639-x][y][REDV] = unedited_image_data[step*y+(639-x)*3+0];
+            RGB_unedited[639-x][y][GREENV] = unedited_image_data[step*y+(639-x)*3+1];
+            RGB_unedited[639-x][y][BLUEV] = unedited_image_data[step*y+(639-x)*3+2];
           }
       }
 
