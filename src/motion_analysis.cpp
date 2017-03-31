@@ -17,7 +17,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 
-cv_bridge::CvImagePtr image = 0;  
+cv_bridge::CvImagePtr image = 0;
 unsigned int IMAGE_RECEIVED = 0;
 sensor_msgs::ImageConstPtr ros_image;
 motion_analysis_msgs::AnswerWithHeader string_msg;
@@ -72,76 +72,76 @@ void configurationCallback(std_msgs::String str){
 	}
       }
       else if(str.data.compare("cy+")==0){ //d
-        if(CUPY - CUPR - 20 >= 0){
-          CUPY = CUPY - 20;
+        if(CUPY - CUPR - 10 >= 0){
+          CUPY = CUPY - 10;
 	}
 	else{
 	  CUPY = CUPR;
 	}
       }
       else if(str.data.compare("cy-")==0){ //c
-        if(CUPY + CUPR + 20 <= 479){
-          CUPY = CUPY + 20;
+        if(CUPY + CUPR + 10 <= 479){
+          CUPY = CUPY + 10;
 	}
 	else{
 	  CUPY = 479-CUPR;
 	}
       } 
       else if(str.data.compare("cx-")==0){ //x
-        if(CUPX - CUPR - 20 >= 0){
-          CUPX = CUPX - 20;
+        if(CUPX - CUPR - 10 >= 0){
+          CUPX = CUPX - 10;
 	}
 	else{
 	  CUPX = CUPR;
 	}
       }
       else if(str.data.compare("cx+")==0){ //v
-        if(CUPX + CUPR + 20 <= 639){
-          CUPX = CUPX + 20;
+        if(CUPX + CUPR + 10 <= 639){
+          CUPX = CUPX + 10;
 	}
 	else{
 	  CUPX = 639 - CUPR;
 	}
       }
       else if(str.data.compare("cr+")==0){ //g
-        if(CUPX - CUPR -20 >= 0 && CUPY - CUPR - 20 >= 0 && CUPX + CUPR + 20 <= 639 && CUPY + CUPR + 20 <= 479){
-          CUPR = CUPR + 20;
-	}
+        if(CUPX - CUPR - 10 >= 0 && CUPY - CUPR - 10 >= 0 && CUPX + CUPR + 10 <= 639 && CUPY + CUPR + 10 <= 479){
+          CUPR = CUPR + 10;
+        }
       }
       else if(str.data.compare("cr-")==0){ //b
-        if(CUPR - 20 >= 20){
-          CUPR = CUPR - 20;
-	}
-	else{
-	  CUPR = 20;
-	}
+        if(CUPR - 10 >= 10){
+          CUPR = CUPR - 10;
+        }
+        else{
+          CUPR = 10;
+        }
       }
       else if(boost::starts_with(str.data, "s ")){
-	SENSITIVITY = atoi(str.data.substr(2).c_str());
+        SENSITIVITY = atoi(str.data.substr(2).c_str());
       }
       else if(boost::starts_with(str.data, "ct ")){
-	CUPTHRESHOLD = atoi(str.data.substr(3).c_str());
+        CUPTHRESHOLD = atoi(str.data.substr(3).c_str());
       }
       else if(boost::starts_with(str.data, "cc ")){
-	CUPTHRSCOUNT = atoi(str.data.substr(3).c_str());
+        CUPTHRSCOUNT = atoi(str.data.substr(3).c_str());
       }
       else if(str.data.compare("save")==0){//save
-	std::string path = ros::package::getPath("motion_analysis");
-	path += "/config/";
-	std::string filename = path + "conf.yaml";
-	std::ofstream file;
-	file.open(filename, std::fstream::out);
-	file << "STANDING_PERSON_HEIGHT: " << STANDING_PERSON_HEIGHT << std::endl;
-	file << "OUTOFBED_LEFT: " << OUTOFBED_LEFT << std::endl;
-	file << "OUTOFBED_RIGHT: " << OUTOFBED_RIGHT << std::endl;
-	file << "CUPX: " << CUPX << std::endl;
-	file << "CUPY: " << CUPY << std::endl;
-	file << "CUPR: " << CUPR << std::endl;
-	file << "SENSITIVITY: " << SENSITIVITY << std::endl;
-	file << "CUPTHRESHOLD: " << CUPTHRESHOLD << std::endl;
-	file << "CUPTHRSCOUNT: " << CUPTHRSCOUNT << std::endl; 
-	file.close();
-	ROS_WARN("Configuration saved successfully!");
+        std::string path = ros::package::getPath("motion_analysis");
+        path += "/config/";
+        std::string filename = path + "conf.yaml";
+        std::ofstream file;
+        file.open(filename, std::fstream::out);
+        file << "STANDING_PERSON_HEIGHT: " << STANDING_PERSON_HEIGHT << std::endl;
+        file << "OUTOFBED_LEFT: " << OUTOFBED_LEFT << std::endl;
+        file << "OUTOFBED_RIGHT: " << OUTOFBED_RIGHT << std::endl;
+        file << "CUPX: " << CUPX << std::endl;
+        file << "CUPY: " << CUPY << std::endl;
+        file << "CUPR: " << CUPR << std::endl;
+        file << "SENSITIVITY: " << SENSITIVITY << std::endl;
+        file << "CUPTHRESHOLD: " << CUPTHRESHOLD << std::endl;
+        file << "CUPTHRSCOUNT: " << CUPTHRSCOUNT << std::endl; 
+        file.close();
+        ROS_WARN("Configuration saved successfully!");
       }
       else if(str.data.compare("reset")==0){
         STANDING_PERSON_HEIGHT = 100;
