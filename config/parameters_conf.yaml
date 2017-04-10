@@ -1,4 +1,4 @@
-image_topic: '/camera/rgb/image_raw'
+image_topic: '/radio_cam/rgb/image_raw'
 
 #object detection MUST start on testing mode, in order for the small
 #square to initialize. then a "2" should be published on the
