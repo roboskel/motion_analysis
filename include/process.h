@@ -67,6 +67,7 @@ int CUPTHRSCOUNT = 30;
 int BOUNDARIES_CONFIG = 0;
 int CONFIGURATION_DONE = 0;
 int FIRST_ROUND = 1;
+bool ft = true;
 
 
 
