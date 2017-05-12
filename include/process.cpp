@@ -66,10 +66,10 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                      
     unsigned long int cx, cy, x1,x2,y1,y2,n,nn;
 
-	switch(command) {
-		case 0 : // do nothing
-			 break;		
-		case 1 : // copy a to b
+    switch(command) {
+        case 0 : // do nothing
+             break;     
+        case 1 : // copy a to b
                 {
                 for (y=0;y<480;y++) {
                   for (x=0;x<640;x++) {
@@ -215,12 +215,12 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 }
 
                 #ifdef ALGO_1
-		
-		// Define ss to any value >0 and <(480/4). 
-		// Reasonable results expected only for values in between 2 and 10.
+        
+        // Define ss to any value >0 and <(480/4). 
+        // Reasonable results expected only for values in between 2 and 10.
                 ss= 4;           // +/- from center of each block
-		
-		s = ss + ss + 1; // size of each block
+        
+        s = ss + ss + 1; // size of each block
                 
                 // find diff in squares of size s, and find top,bot,right,left
                 for (yy=s;yy<480-s;yy+=s) {
@@ -401,9 +401,9 @@ int process_function (unsigned char *rgb_a, unsigned char *rgb_b,unsigned char c
                 }
                 }
                 break;                 
- 	}
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -413,7 +413,10 @@ void process(unsigned char *rgb_a, unsigned char *rgb_b,unsigned int index, unsi
 
     char str[1];
 
-    cup = new int[CUPR*CUPR*4];    
+    if (ft){
+        cup = new int[CUPR*CUPR*4];
+        ft = false;
+    }
 
     process_function (rgb_a, rgb_b,COMMAND, showanno, unedited, shapesxy);
 
