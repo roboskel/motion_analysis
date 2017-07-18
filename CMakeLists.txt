@@ -22,7 +22,7 @@ find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS roscpp roslib std_msgs motion_analysis_msgs
+    CATKIN_DEPENDS roscpp roslib std_msgs motion_analysis_msgs radio_services
 )
 
 include_directories(${catkin_INCLUDE_DIRS} ${BOOST_INCLUDE_DIR} ${Boost_INCLUDE_DIR} src include)
