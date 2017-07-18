@@ -1,20 +1,12 @@
 image_topic: '/radio_cam/rgb/image_raw'
 
-#object detection MUST start on testing mode, in order for the small
-#square to initialize. then a "2" should be published on the
-# motion_analysis_mode_topic
-#e.g.
-#rostopic pub /motion_analysis/object_state std_msgs/Int32 2
-
-mode: 1 #human_detection=0, testing=1, object_detection=2
-
 motion_analysis_shapes_topic: '/motion_analysis/shapes_image'
 
 motion_analysis_human_topic: '/motion_analysis/event/human_transfer'
 
 motion_analysis_object_topic: '/motion_analysis/event/object_tampered'
 
-motion_analysis_mode_topic: '/motion_analysis/object_state'
+motion_analysis_node_state_service: '/motion_analysis/node_state'
 
 # If true, then two extra topics are used to publish messages
 # that will be mostly useful for human consumption
