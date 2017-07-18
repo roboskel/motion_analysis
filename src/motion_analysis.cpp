@@ -236,11 +236,11 @@ int main(int argc, char** argv) {
   bool visualize = false;
   bool configuration_mode = false;
   std::string bounding_box_topic = "";
-  std::string motion_analysis_mode_topic = "";
   std::string motion_analysis_human_topic = "";
+  std::string motion_analysis_object_topic = "";
   std::string motion_analysis_shapes_topic = "";
-  std::string motion_analysis_node_state_service = "";
   std::string motion_detection_results_topic = "";
+  std::string motion_analysis_node_state_service = "";
 
   n.param("motion_analysis/visualize", visualize, false);
   n.param("motion_analysis/image_topic", image_topic, std::string("/usb_cam/image_raw"));
@@ -269,7 +269,7 @@ int main(int argc, char** argv) {
   ros::Publisher string_publisher_person = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_human_topic, 1);
   ros::Publisher string_publisher_object = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_object_topic, 1);
 
-  ros::ServiceServer service = n.advertiseService("motion_analysis/node_state", nodeStateCallback);
+  ros::ServiceServer service = n.advertiseService(motion_analysis_node_state_service, nodeStateCallback);
 
   unsigned int iteration, index , showanno;
 
