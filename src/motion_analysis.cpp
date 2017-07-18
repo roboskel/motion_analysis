@@ -17,12 +17,11 @@
 #include "motion_analysis_msgs/AnswerWithHeader.h"
 
 bool running = false;
+ros::NodeHandle *nptr;
 ros::Subscriber img_in;
 ros::Subscriber conf_in;
 std::string conf_topic = "";
 std::string image_topic = "";
-ros::Subscriber object_state_in;
-ros::NodeHandle *nptr;
 cv_bridge::CvImagePtr image = 0;
 unsigned int IMAGE_RECEIVED = 0;
 sensor_msgs::ImageConstPtr ros_image;
@@ -173,15 +172,6 @@ void imageCallback(const sensor_msgs::Image::ConstPtr& str_img){
   }
 }
 
-void objectStateCallback(const std_msgs::Int32 obj_state){
-  if(placed != MODE_HUMAN_MOVEMENT){
-  	placed = obj_state.data;
-  	if(placed == 2){
-    		ROS_INFO("Waiting for object to move");
-  	}
-  }
-}
-
 /**
  * @brief      This function is called when the corresponding service is called
  *             and based on the parameter passed, either changes its state and
@@ -249,18 +239,17 @@ int main(int argc, char** argv) {
   std::string motion_analysis_mode_topic = "";
   std::string motion_analysis_human_topic = "";
   std::string motion_analysis_shapes_topic = "";
-  std::string motion_analysis_object_topic = "";
+  std::string motion_analysis_node_state_service = "";
   std::string motion_detection_results_topic = "";
 
+  n.param("motion_analysis/visualize", visualize, false);
   n.param("motion_analysis/image_topic", image_topic, std::string("/usb_cam/image_raw"));
   n.param("motion_analysis/bounding_box_topic", bounding_box_topic, std::string("/motion_analysis/bounding_box_viz"));
   n.param("motion_analysis/image_motion_detection_results_topic", motion_detection_results_topic, std::string("/motion_analysis/motion_analysis_viz"));
   n.param("motion_analysis/motion_analysis_shapes_topic", motion_analysis_shapes_topic, std::string("/motion_analysis/shapes_image"));
   n.param("motion_analysis/motion_analysis_human_topic", motion_analysis_human_topic, std::string("/motion_analysis/event/human_transfer"));
   n.param("motion_analysis/motion_analysis_object_topic", motion_analysis_object_topic, std::string("/motion_analysis/event/object_tampered"));
-  n.param("motion_analysis/motion_analysis_mode_topic", motion_analysis_mode_topic, std::string("/motion_analysis/object_state"));
-  n.param("motion_analysis/visualize", visualize, false);
-  n.param("motion_analysis/mode", placed, 0);
+  n.param("motion_analysis/motion_analysis_node_state_service", motion_analysis_node_state_service, std::string("/motion_analysis/node_state"));
 
   n.param("motion_analysis/STANDING_PERSON_HEIGHT", STANDING_PERSON_HEIGHT, 100);
   n.param("motion_analysis/OUTOFBED_LEFT", OUTOFBED_LEFT, 240);
@@ -273,8 +262,6 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/CUPTHRSCOUNT", CUPTHRSCOUNT, 30);
   n.param("motion_analysis/configuration_mode", configuration_mode, false);
   n.param("motion_analysis/configuration_keypress_topic", conf_topic, std::string("motion_analysis/configuration/keypress"));
-
-  object_state_in = n.subscribe<std_msgs::Int32>(motion_analysis_mode_topic, 5, objectStateCallback);
 
   ros::Publisher image_publisher_bb = n.advertise<sensor_msgs::Image>(bounding_box_topic, 100);
   ros::Publisher image_publisher_mdr = n.advertise<sensor_msgs::Image>(motion_detection_results_topic, 100);
@@ -336,9 +323,7 @@ int main(int argc, char** argv) {
         process((unsigned char *)RGB, (unsigned char *)Bac, index, showanno, bed_answer, obj_answer, (unsigned char *)RGB_unedited, shapesxy);
 
         if(!configuration_mode && placed == MODE_HUMAN_MOVEMENT){
-          ROS_WARN("HUMAN MODE OK!");
           if(bed_answer != -1){
-            ROS_WARN("ANSWER OK!");
             std_msgs::Header header;
             header.stamp = ros::Time::now();
             string_msg.header = header;
