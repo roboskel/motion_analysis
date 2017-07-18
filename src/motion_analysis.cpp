@@ -1,29 +1,35 @@
 /* Capture video input from camera and display on screen */
 
 #include "cv.h"
+#include <fstream>
 #include "highgui.h"
 #include "process.h"
-
-#include <sensor_msgs/Image.h>
-#include <ros/ros.h>
-#include <cv_bridge/cv_bridge.h>
-#include "std_msgs/String.h"
-#include "std_msgs/Int32.h"
-#include "motion_analysis_msgs/shapes_msg.h"
-#include "motion_analysis_msgs/AnswerWithHeader.h"
-#include <ros/package.h>
 #include <iostream>
-#include <fstream>
+#include <ros/ros.h>
+#include <ros/package.h>
+#include "std_msgs/Int32.h"
+#include "std_msgs/String.h"
+#include <sensor_msgs/Image.h>
+#include <cv_bridge/cv_bridge.h>
+#include "motion_analysis_msgs/shapes_msg.h"
 #include <boost/algorithm/string/predicate.hpp>
+#include "radio_services/InstructionWithAnswer.h"
+#include "motion_analysis_msgs/AnswerWithHeader.h"
 
-
+bool running = false;
+ros::Subscriber img_in;
+ros::Subscriber conf_in;
+std::string conf_topic = "";
+std::string image_topic = "";
+ros::Subscriber object_state_in;
+ros::NodeHandle *nptr;
 cv_bridge::CvImagePtr image = 0;
 unsigned int IMAGE_RECEIVED = 0;
 sensor_msgs::ImageConstPtr ros_image;
 motion_analysis_msgs::AnswerWithHeader string_msg;
 
 void configurationCallback(std_msgs::String str){
-      if(str.data.compare("h+")==0){ //q
+      if(str.data.compare("h+")==0){
         if(STANDING_PERSON_HEIGHT - 20 >= 0){
           STANDING_PERSON_HEIGHT = STANDING_PERSON_HEIGHT - 20;
 	}
@@ -31,7 +37,7 @@ void configurationCallback(std_msgs::String str){
 	  STANDING_PERSON_HEIGHT = 0;
 	}
       }
-      else if(str.data.compare("h-")==0){ //a
+      else if(str.data.compare("h-")==0){
         if(STANDING_PERSON_HEIGHT + 20 <= 479){
           STANDING_PERSON_HEIGHT = STANDING_PERSON_HEIGHT + 20;
 	}
@@ -39,7 +45,7 @@ void configurationCallback(std_msgs::String str){
 	  STANDING_PERSON_HEIGHT = 479;
 	}
       }
-      else if(str.data.compare("bl-")==0){ //w
+      else if(str.data.compare("bl-")==0){
         if(OUTOFBED_LEFT - 20 >= 0){
           OUTOFBED_LEFT = OUTOFBED_LEFT - 20;
 	}
@@ -47,7 +53,7 @@ void configurationCallback(std_msgs::String str){
 	  OUTOFBED_LEFT = 0;
 	}
       }
-      else if(str.data.compare("bl+")==0){ //e
+      else if(str.data.compare("bl+")==0){
         if(OUTOFBED_LEFT + 20 <= 639){
           OUTOFBED_LEFT = OUTOFBED_LEFT + 20;
 	}
@@ -55,7 +61,7 @@ void configurationCallback(std_msgs::String str){
 	  OUTOFBED_LEFT = 639;
 	}
       }
-      else if(str.data.compare("br-")==0){ //o
+      else if(str.data.compare("br-")==0){
         if(OUTOFBED_RIGHT - 20 >= 0){
           OUTOFBED_RIGHT = OUTOFBED_RIGHT - 20;
 	}
@@ -63,7 +69,7 @@ void configurationCallback(std_msgs::String str){
 	  OUTOFBED_RIGHT = 0;
 	}
       }
-      else if(str.data.compare("br+")==0){ //p
+      else if(str.data.compare("br+")==0){
         if(OUTOFBED_RIGHT + 20 <= 639){
           OUTOFBED_RIGHT = OUTOFBED_RIGHT + 20;
 	}
@@ -71,7 +77,7 @@ void configurationCallback(std_msgs::String str){
 	  OUTOFBED_RIGHT = 639;
 	}
       }
-      else if(str.data.compare("cy+")==0){ //d
+      else if(str.data.compare("cy+")==0){
         if(CUPY - CUPR - 10 >= 0){
           CUPY = CUPY - 10;
 	}
@@ -79,7 +85,7 @@ void configurationCallback(std_msgs::String str){
 	  CUPY = CUPR;
 	}
       }
-      else if(str.data.compare("cy-")==0){ //c
+      else if(str.data.compare("cy-")==0){
         if(CUPY + CUPR + 10 <= 479){
           CUPY = CUPY + 10;
 	}
@@ -87,7 +93,7 @@ void configurationCallback(std_msgs::String str){
 	  CUPY = 479-CUPR;
 	}
       } 
-      else if(str.data.compare("cx-")==0){ //x
+      else if(str.data.compare("cx-")==0){
         if(CUPX - CUPR - 10 >= 0){
           CUPX = CUPX - 10;
 	}
@@ -95,7 +101,7 @@ void configurationCallback(std_msgs::String str){
 	  CUPX = CUPR;
 	}
       }
-      else if(str.data.compare("cx+")==0){ //v
+      else if(str.data.compare("cx+")==0){
         if(CUPX + CUPR + 10 <= 639){
           CUPX = CUPX + 10;
 	}
@@ -103,12 +109,12 @@ void configurationCallback(std_msgs::String str){
 	  CUPX = 639 - CUPR;
 	}
       }
-      else if(str.data.compare("cr+")==0){ //g
+      else if(str.data.compare("cr+")==0){
         if(CUPX - CUPR - 10 >= 0 && CUPY - CUPR - 10 >= 0 && CUPX + CUPR + 10 <= 639 && CUPY + CUPR + 10 <= 479){
           CUPR = CUPR + 10;
         }
       }
-      else if(str.data.compare("cr-")==0){ //b
+      else if(str.data.compare("cr-")==0){
         if(CUPR - 10 >= 10){
           CUPR = CUPR - 10;
         }
@@ -125,7 +131,7 @@ void configurationCallback(std_msgs::String str){
       else if(boost::starts_with(str.data, "cc ")){
         CUPTHRSCOUNT = atoi(str.data.substr(3).c_str());
       }
-      else if(str.data.compare("save")==0){//save
+      else if(str.data.compare("save")==0){
         std::string path = ros::package::getPath("motion_analysis");
         path += "/config/";
         std::string filename = path + "conf.yaml";
@@ -176,6 +182,46 @@ void objectStateCallback(const std_msgs::Int32 obj_state){
   }
 }
 
+/**
+ * @brief      This function is called when the corresponding service is called
+ *             and based on the parameter passed, either changes its state and
+ *             returns the new state, or just returns the current state.
+ *             0: Change the current node state to WAITING (false) and return the current node state.
+ *             1: Change the current node state to RUNNING (true), return the current node state (and do not change the mode).
+ *            10: Change the current node state to RUNNING (true), return the current node state and change the mode to 0.
+ *            11: Change the current node state to RUNNING (true), return the current node state and change the mode to 1.
+ *            12: Change the current node state to RUNNING (true), return the current node state and change the mode to 2.
+ *            -1: Return the current node state.
+ *
+ * @param[in]  req   The requested action
+ * @param[in]  res   The response (the current state of the node)
+ *
+ * @return     true if everything was successful, false otherwise.
+ */
+bool nodeStateCallback(radio_services::InstructionWithAnswer::Request &req, radio_services::InstructionWithAnswer::Response &res){
+
+  if(req.command == 0 && running){
+    running = false;
+    img_in.shutdown();
+    conf_in.shutdown();
+    ROS_INFO("Stoppped motion_analysis!");
+  }
+  else if(req.command == 1 || req.command == 10 || req.command == 11 || req.command == 12){
+    if(!running){
+      img_in = nptr->subscribe<sensor_msgs::Image>(image_topic, 60, imageCallback);
+      conf_in = nptr->subscribe<std_msgs::String>(conf_topic, 1, configurationCallback);
+      running = true;
+    }
+    if(req.command >= 10){
+      placed = req.command - 10;
+    }
+    ROS_INFO("Started motion_analysis in mode %d!", placed);
+  }
+
+  res.answer = running;
+  return true;
+}
+
 cv_bridge::CvImagePtr cvImageFromROS(){
   try{
     return cv_bridge::toCvCopy(ros_image, sensor_msgs::image_encodings::BGR8);
@@ -194,17 +240,17 @@ int main(int argc, char** argv) {
   unsigned char Bac[640][480][3];  
 
   ros::init(argc, argv, "motion_analysis");
+
   ros::NodeHandle n;
-  std::string image_topic = "";
-  std::string bounding_box_topic = "";
-  std::string motion_detection_results_topic = "";
-  std::string motion_analysis_shapes_topic = "";
-  std::string motion_analysis_human_topic = "";
-  std::string motion_analysis_object_topic = "";
-  std::string motion_analysis_mode_topic = "";
+  nptr = &n;
   bool visualize = false;
   bool configuration_mode = false;
-  std::string conf_topic = "";
+  std::string bounding_box_topic = "";
+  std::string motion_analysis_mode_topic = "";
+  std::string motion_analysis_human_topic = "";
+  std::string motion_analysis_shapes_topic = "";
+  std::string motion_analysis_object_topic = "";
+  std::string motion_detection_results_topic = "";
 
   n.param("motion_analysis/image_topic", image_topic, std::string("/usb_cam/image_raw"));
   n.param("motion_analysis/bounding_box_topic", bounding_box_topic, std::string("/motion_analysis/bounding_box_viz"));
@@ -228,22 +274,18 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/configuration_mode", configuration_mode, false);
   n.param("motion_analysis/configuration_keypress_topic", conf_topic, std::string("motion_analysis/configuration/keypress"));
 
-  ros::Subscriber img_in, object_state_in, conf_in;
-  img_in = n.subscribe<sensor_msgs::Image>(image_topic, 5, imageCallback);
   object_state_in = n.subscribe<std_msgs::Int32>(motion_analysis_mode_topic, 5, objectStateCallback);
 
-  if(configuration_mode){
-	conf_in = n.subscribe<std_msgs::String>(conf_topic, 1, configurationCallback);
-  }
-
-  ros::Publisher string_publisher_person = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_human_topic, 1);
-  ros::Publisher string_publisher_object = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_object_topic, 1);
-  ros::Publisher shapes_image_publisher = n.advertise<motion_analysis_msgs::shapes_msg>(motion_analysis_shapes_topic, 1);
   ros::Publisher image_publisher_bb = n.advertise<sensor_msgs::Image>(bounding_box_topic, 100);
   ros::Publisher image_publisher_mdr = n.advertise<sensor_msgs::Image>(motion_detection_results_topic, 100);
-  
+  ros::Publisher shapes_image_publisher = n.advertise<motion_analysis_msgs::shapes_msg>(motion_analysis_shapes_topic, 1);
+  ros::Publisher string_publisher_person = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_human_topic, 1);
+  ros::Publisher string_publisher_object = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_object_topic, 1);
+
+  ros::ServiceServer service = n.advertiseService("motion_analysis/node_state", nodeStateCallback);
+
   unsigned int iteration, index , showanno;
-  
+
   showanno = 2;
   iteration = 1;
   int bed_answer;
@@ -252,91 +294,100 @@ int main(int argc, char** argv) {
   motion_analysis_msgs::shapes_msg shapes_image_msg;
   int shapesxy[6] = {};
 
+  ROS_INFO("motion_analysis is now running and it will wait until its state service is called...");
 
- while(ros::ok()) {
-    if(IMAGE_RECEIVED == 1){
-      if (iteration>16383) iteration=0; else iteration++;
-    
-      image  = cvImageFromROS();
-      unsigned char *image_data = (unsigned char*)(image->image.data);
+  while(ros::ok()) {
+    if(running){
+      if(IMAGE_RECEIVED == 1){
+        if (iteration > 16383){
+            iteration = 0;
+          }
+          else{
+            iteration++;
+          }
 
-      cv_bridge::CvImagePtr unedited_image = cvImageFromROS();
-      unsigned char *unedited_image_data = (unsigned char*)(unedited_image->image.data);
-      
-      index = iteration;
-    
-      int rows    = image->image.rows;
-      int columns = image->image.cols;
-      int step    = image->image.step;
-      int channels= image->image.channels();
-      
-      for (y=0;y<rows;y++) {
+        image  = cvImageFromROS();
+        unsigned char *image_data = (unsigned char*)(image->image.data);
+
+        cv_bridge::CvImagePtr unedited_image = cvImageFromROS();
+        unsigned char *unedited_image_data = (unsigned char*)(unedited_image->image.data);
+
+        index = iteration;
+
+        int rows    = image->image.rows;
+        int columns = image->image.cols;
+        int step    = image->image.step;
+        int channels= image->image.channels();
+
+        for (y=0;y<rows;y++) {
+            for (x=0;x<columns;x++) {
+              RGB[639-x][y][REDV  ] = image_data[step*y+(639-x)*3+0];
+              RGB[639-x][y][GREENV] = image_data[step*y+(639-x)*3+1];
+              RGB[639-x][y][BLUEV ] = image_data[step*y+(639-x)*3+2];
+              RGB_unedited[639-x][y][REDV] = unedited_image_data[step*y+(639-x)*3+0];
+              RGB_unedited[639-x][y][GREENV] = unedited_image_data[step*y+(639-x)*3+1];
+              RGB_unedited[639-x][y][BLUEV] = unedited_image_data[step*y+(639-x)*3+2];
+            }
+        }
+
+        bed_answer = -1;
+        obj_answer = -1;
+
+        process((unsigned char *)RGB, (unsigned char *)Bac, index, showanno, bed_answer, obj_answer, (unsigned char *)RGB_unedited, shapesxy);
+
+        if(!configuration_mode && placed == MODE_HUMAN_MOVEMENT){
+          ROS_WARN("HUMAN MODE OK!");
+          if(bed_answer != -1){
+            ROS_WARN("ANSWER OK!");
+            std_msgs::Header header;
+            header.stamp = ros::Time::now();
+            string_msg.header = header;
+            string_msg.event = bed_answer;
+            string_publisher_person.publish(string_msg);
+          }
+        }
+        else if(!configuration_mode && placed == MODE_DETECT_OBJECT_MOVEMENT){
+          if(obj_answer != -1){
+            std_msgs::Header header;
+            header.stamp = ros::Time::now();
+            string_msg.header = header;
+            string_msg.event = obj_answer;
+            string_publisher_object.publish(string_msg);
+          }
+        }
+
+        for (y=0;y<rows;y++) {
           for (x=0;x<columns;x++) {
-            RGB[639-x][y][REDV  ] = image_data[step*y+(639-x)*3+0];
-            RGB[639-x][y][GREENV] = image_data[step*y+(639-x)*3+1];
-            RGB[639-x][y][BLUEV ] = image_data[step*y+(639-x)*3+2];
-            RGB_unedited[639-x][y][REDV] = unedited_image_data[step*y+(639-x)*3+0];
-            RGB_unedited[639-x][y][GREENV] = unedited_image_data[step*y+(639-x)*3+1];
-            RGB_unedited[639-x][y][BLUEV] = unedited_image_data[step*y+(639-x)*3+2];
+            if(visualize){
+              image_data[step*y+x*3+0] = RGB[x][y][REDV  ];
+              image_data[step*y+x*3+1] = RGB[x][y][GREENV];
+              image_data[step*y+x*3+2] = RGB[x][y][BLUEV ];
+            }
+            unedited_image_data[step*y+x*3+0] = RGB_unedited[x][y][REDV];
+            unedited_image_data[step*y+x*3+1] = RGB_unedited[x][y][GREENV];
+            unedited_image_data[step*y+x*3+2] = RGB_unedited[x][y][BLUEV];
           }
-      }
-
-      bed_answer = -1;
-      obj_answer = -1;
-      
-      process((unsigned char *)RGB,(unsigned char *)Bac,index,showanno, bed_answer, obj_answer, (unsigned char *)RGB_unedited, shapesxy);
-
-      if(!configuration_mode && placed == MODE_HUMAN_MOVEMENT){
-        if(bed_answer != -1){
-          std_msgs::Header header;
-          header.stamp = ros::Time::now();
-          string_msg.header = header;
-          string_msg.event = bed_answer;
-          string_publisher_person.publish(string_msg);
         }
-      }
-      else if(!configuration_mode && placed == MODE_DETECT_OBJECT_MOVEMENT){
-        if(obj_answer != -1){
-          std_msgs::Header header;
-          header.stamp = ros::Time::now();
-          string_msg.header = header;
-          string_msg.event = obj_answer;
-          string_publisher_object.publish(string_msg);
+
+        if(visualize){
+          image_publisher_bb.publish(unedited_image->toImageMsg());
+          image_publisher_mdr.publish(image->toImageMsg());
         }
-      }
-      
-      
-      for (y=0;y<rows;y++) {
-        for (x=0;x<columns;x++) {
-          if(visualize){
-            image_data[step*y+x*3+0] = RGB[x][y][REDV  ];
-            image_data[step*y+x*3+1] = RGB[x][y][GREENV];
-            image_data[step*y+x*3+2] = RGB[x][y][BLUEV ];
-          }
-          unedited_image_data[step*y+x*3+0] = RGB_unedited[x][y][REDV];
-          unedited_image_data[step*y+x*3+1] = RGB_unedited[x][y][GREENV];
-          unedited_image_data[step*y+x*3+2] = RGB_unedited[x][y][BLUEV];
-        }
-      }
 
-      if(visualize){
-        image_publisher_bb.publish(unedited_image->toImageMsg());
-        image_publisher_mdr.publish(image->toImageMsg());
+        shapes_image_msg.boundingBox.top_left.x = shapesxy[0];
+        shapes_image_msg.boundingBox.top_left.y = shapesxy[1];
+        shapes_image_msg.boundingBox.bottom_right.x = shapesxy[2];
+        shapes_image_msg.boundingBox.bottom_right.y = shapesxy[3];
+        shapes_image_msg.centerOfActivity.x = shapesxy[4];
+        shapes_image_msg.centerOfActivity.y = shapesxy[5];
+        shapes_image_msg.image = *unedited_image->toImageMsg();
+
+        shapes_image_publisher.publish(shapes_image_msg);
+        IMAGE_RECEIVED = 0;
       }
-
-      shapes_image_msg.boundingBox.top_left.x = shapesxy[0];
-      shapes_image_msg.boundingBox.top_left.y = shapesxy[1];
-      shapes_image_msg.boundingBox.bottom_right.x = shapesxy[2];
-      shapes_image_msg.boundingBox.bottom_right.y = shapesxy[3];
-      shapes_image_msg.centerOfActivity.x = shapesxy[4];
-      shapes_image_msg.centerOfActivity.y = shapesxy[5];
-      shapes_image_msg.image = *unedited_image->toImageMsg();
-
-      shapes_image_publisher.publish(shapes_image_msg);
-      IMAGE_RECEIVED = 0;
+    }
+    ros::spinOnce();
   }
-  ros::spinOnce();
-}
 
   return 0;
 }
