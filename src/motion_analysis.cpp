@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/motion_analysis_shapes_topic", motion_analysis_shapes_topic, std::string("/motion_analysis/shapes_image"));
   n.param("motion_analysis/motion_analysis_human_topic", motion_analysis_human_topic, std::string("/motion_analysis/event/human_transfer"));
   n.param("motion_analysis/motion_analysis_object_topic", motion_analysis_object_topic, std::string("/motion_analysis/event/object_tampered"));
-  n.param("motion_analysis/motion_analysis_node_state_service", motion_analysis_node_state_service, std::string("/motion_analysis/node_state"));
+  n.param("motion_analysis/motion_analysis_node_state_service", motion_analysis_node_state_service, std::string("/motion_analysis/node_state_service"));
 
   n.param("motion_analysis/STANDING_PERSON_HEIGHT", STANDING_PERSON_HEIGHT, 100);
   n.param("motion_analysis/OUTOFBED_LEFT", OUTOFBED_LEFT, 240);
