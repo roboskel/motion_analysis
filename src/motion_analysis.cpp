@@ -12,18 +12,19 @@
 #include <sensor_msgs/Image.h>
 #include <cv_bridge/cv_bridge.h>
 #include "motion_analysis_msgs/shapes_msg.h"
+#include <image_transport/image_transport.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include "radio_services/InstructionWithAnswer.h"
 #include "motion_analysis_msgs/AnswerWithHeader.h"
 
 bool running = false;
 ros::NodeHandle *nptr;
-ros::Subscriber img_in;
 ros::Subscriber conf_in;
 std::string conf_topic = "";
 std::string image_topic = "";
 cv_bridge::CvImagePtr image = 0;
 unsigned int IMAGE_RECEIVED = 0;
+image_transport::Subscriber img_in;
 sensor_msgs::ImageConstPtr ros_image;
 motion_analysis_msgs::AnswerWithHeader string_msg;
 
@@ -198,7 +199,8 @@ bool nodeStateCallback(radio_services::InstructionWithAnswer::Request &req, radi
   }
   else if(req.command == 1 || req.command == 10 || req.command == 11 || req.command == 12){
     if(!running){
-      img_in = nptr->subscribe<sensor_msgs::Image>(image_topic, 60, imageCallback);
+      image_transport::ImageTransport it(*nptr);
+      img_in = it.subscribe(image_topic, 1, imageCallback, ros::VoidPtr(), image_transport::TransportHints("compressed"));
       conf_in = nptr->subscribe<std_msgs::String>(conf_topic, 1, configurationCallback);
       running = true;
     }
@@ -249,7 +251,7 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/motion_analysis_shapes_topic", motion_analysis_shapes_topic, std::string("/motion_analysis/shapes_image"));
   n.param("motion_analysis/motion_analysis_human_topic", motion_analysis_human_topic, std::string("/motion_analysis/event/human_transfer"));
   n.param("motion_analysis/motion_analysis_object_topic", motion_analysis_object_topic, std::string("/motion_analysis/event/object_tampered"));
-  n.param("motion_analysis/motion_analysis_node_state_service", motion_analysis_node_state_service, std::string("/motion_analysis/node_state"));
+  n.param("motion_analysis/motion_analysis_node_state_service", motion_analysis_node_state_service, std::string("/motion_analysis/node_state_service"));
 
   n.param("motion_analysis/STANDING_PERSON_HEIGHT", STANDING_PERSON_HEIGHT, 100);
   n.param("motion_analysis/OUTOFBED_LEFT", OUTOFBED_LEFT, 240);
@@ -263,8 +265,9 @@ int main(int argc, char** argv) {
   n.param("motion_analysis/configuration_mode", configuration_mode, false);
   n.param("motion_analysis/configuration_keypress_topic", conf_topic, std::string("motion_analysis/configuration/keypress"));
 
-  ros::Publisher image_publisher_bb = n.advertise<sensor_msgs::Image>(bounding_box_topic, 100);
-  ros::Publisher image_publisher_mdr = n.advertise<sensor_msgs::Image>(motion_detection_results_topic, 100);
+  image_transport::ImageTransport it(n);
+  image_transport::Publisher image_publisher_bb = it.advertise(bounding_box_topic, 1);
+  image_transport::Publisher image_publisher_mdr = it.advertise(motion_detection_results_topic, 1);
   ros::Publisher shapes_image_publisher = n.advertise<motion_analysis_msgs::shapes_msg>(motion_analysis_shapes_topic, 1);
   ros::Publisher string_publisher_person = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_human_topic, 1);
   ros::Publisher string_publisher_object = n.advertise<motion_analysis_msgs::AnswerWithHeader>(motion_analysis_object_topic, 1);
